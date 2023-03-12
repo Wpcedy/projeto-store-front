@@ -1,0 +1,164 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { Button, Card, Col, Form, InputGroup, Row } from "react-bootstrap";
+import toast, { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import store from '../../img/store.png';
+import api from "../../services/api";
+
+function ClienteEditar(props) {
+  const navigate = useNavigate();
+  const [cliente, setCliente] = useState([]);
+  const [validated, setValidated] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    axios({
+      method: 'get',
+      url: 'http://localhost:8080/cliente/'+props.clienteId,
+    }).then((response) => {
+      console.log(response.data[0]);
+      setCliente(response.data[0]);
+    }).catch((error) => {
+      toast.error(error.response.data.message);
+      setCliente(null);
+    });
+  }, []);
+
+  const handleSubmit = (event) => {
+    setSubmitted(true);
+    const form = event.currentTarget;
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (form.checkValidity() === false) {
+      setSubmitted(false);
+      setValidated(true);
+    } else {
+      const formData = new FormData(event.target),
+        formDataObj = Object.fromEntries(formData.entries())
+
+      setValidated(true);
+
+      api.post(
+        "/cliente/"+props.clienteId+"/editar",
+        JSON.stringify({
+          nome: formDataObj.nome,
+          email: formDataObj.email,
+          cpf: formDataObj.cpf,
+          endereco: formDataObj.endereco,
+          telefone: formDataObj.telefone
+        }),
+        {
+          headers: {
+          'Content-Type': 'application/json'
+          }
+        }
+      ).then((response) => {
+        props.setClienteId(null);
+        setSubmitted(false);
+        navigate("/cliente/lista");
+      }).catch((error) => {
+        setSubmitted(false);
+        toast.error(error.response.data.message);
+      });
+    }
+
+  };
+
+  return (
+    <div className="ClienteEditar" style={{
+      paddingTop: '15px',
+    }}>
+      <Card>
+        <Card.Header></Card.Header>
+        <Card.Body>
+          <img src={store} alt="store" height={250} /><br></br>
+          Bem vindo(a)
+        </Card.Body>
+        <Card.Footer>
+          <Row>
+            <Col>
+              <Button id="home" onClick={() => navigate("/")}>Home</Button>{' '}
+              <Button id="clientes" onClick={() => navigate("/cliente/lista")}>Clientes</Button>{' '}
+              <Button id="produtos" onClick={() => navigate("/produto/lista")}>Produtos</Button>{' '}
+              <Button id="pedidos" onClick={() => navigate("/pedido/lista")}>Pedidos</Button>
+            </Col>
+          </Row>
+        </Card.Footer>
+      </Card><br></br>
+      <Form noValidate validated={validated} onSubmit={handleSubmit}>
+        <Card>
+          <Card.Header className="TextLeft">Editar Cliente - {props.clienteId}</Card.Header>
+          <Card.Body>
+            <Row>
+              <Col>
+                <Form.Group controlId="form.nome">
+                  <InputGroup className='TextLeft'>
+                    <label>
+                      Nome
+                      <Form.Control type="text" name="nome" value={cliente.nome} required />
+                    </label>
+                  </InputGroup><br />
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group controlId="form.email">
+                  <InputGroup className='TextLeft'>
+                    <label>
+                      Email
+                      <Form.Control type="text" name="email" value={cliente.email} required />
+                    </label>
+                  </InputGroup><br />
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group controlId="form.cpf">
+                  <InputGroup className='TextLeft'>
+                    <label>
+                      CPF
+                      <Form.Control type="text" name="cpf" maxLength={11} value={cliente.cpf} required />
+                    </label>
+                  </InputGroup><br />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <Form.Group controlId="form.endereco">
+                  <InputGroup className='TextLeft'>
+                    <label>
+                      Endereço
+                      <Form.Control type="text" name="endereco" value={cliente.endereco} required />
+                    </label>
+                  </InputGroup><br />
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group controlId="form.telefone">
+                  <InputGroup className='TextLeft'>
+                    <label>
+                      Telefone
+                      <Form.Control type="text" name="telefone" maxLength={11} value={cliente.telefone} required />
+                    </label>
+                  </InputGroup><br />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Card.Body>
+          <Card.Footer>
+            <Row>
+              <Col className='TextRight'>
+                <Button id="buscar" type="submit" disabled={submitted}>Salvar</Button>
+              </Col>
+            </Row>
+          </Card.Footer>
+        </Card>
+      </Form>
+      <br></br>
+      <Toaster />
+    </div>
+  );
+};
+
+export default ClienteEditar;
