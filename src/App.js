@@ -21,24 +21,24 @@ function App() {
   return (
     <div className="App">
       <Container>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/cliente/lista" element={<ClienteLista setClienteId={setClienteId} />}  />
-            <Route path="/cliente/novo" element={<ClienteNovo />} />
-            <Route path="/cliente/editar" element={<ClienteEditar clienteId={clienteId} setClienteId={setClienteId} />} />
-            <Route path="/produto/lista" element={<ProdutoLista setProdutoId={setProdutoId} />} />
-            <Route path="/produto/novo" element={<ProdutoNovo />} />
-            <Route path="/produto/editar" element={<ProdutoEditar produtoId={produtoId} setProdutoId={setProdutoId} />} />
-            <Route path="/pedido/lista" element={<PedidoLista setPedidoId={setPedidoId} />} />
-            <Route path="/pedido/novo" element={<PedidoNovo />} />
-            <Route path="/pedido/editar" element={<PedidoEditar pedidoId={pedidoId} setPedidoId={setPedidoId} />} />
-            <Route
-              path="*"
-              element={<Navigate to="/" />}
-            />
-          </Routes>
-        </Router>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/cliente/lista" element={<ClienteLista setClienteId={setClienteId} />} />
+              <Route path="/cliente/novo" element={<ClienteNovo />} />
+              <Route path="/cliente/editar" element={<ClienteEditar clienteId={clienteId} setClienteId={setClienteId} />} />
+              <Route path="/produto/lista" element={<ProdutoLista setProdutoId={setProdutoId} />} />
+              <Route path="/produto/novo" element={<ProdutoNovo />} />
+              <Route path="/produto/editar" element={<ProdutoEditar produtoId={produtoId} setProdutoId={setProdutoId} />} />
+              <Route path="/pedido/lista" element={<PedidoLista setPedidoId={setPedidoId} />} />
+              <Route path="/pedido/novo" element={<PedidoNovo />} />
+              <Route path="/pedido/editar" element={<PedidoEditar pedidoId={pedidoId} setPedidoId={setPedidoId} setClienteId={setClienteId} setProdutoId={setProdutoId} />} />
+              <Route
+                path="*"
+                element={<Navigate to="/" />}
+              />
+            </Routes>
+          </Router>
       </Container>
     </div>
   );

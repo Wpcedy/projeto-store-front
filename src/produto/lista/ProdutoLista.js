@@ -4,11 +4,13 @@ import { Button, Card, Col, Form, InputGroup, Row } from 'react-bootstrap';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import store from '../../img/store.png';
+import api from '../../services/api';
 
 function ProdutoLista(props) {
   const navigate = useNavigate();
   const [produtos, setProdutos] = useState([]);
   const [submitted, setSubmitted] = useState(false);
+  const [filtro, setFiltro] = useState([]);
 
   useEffect(() => {
     axios({
@@ -29,13 +31,20 @@ function ProdutoLista(props) {
     const formData = new FormData(event.target);
     const formDataObj = Object.fromEntries(formData.entries());
 
+    setFiltro(formDataObj);
+    buscar();
+  };
+
+  const buscar = () => {
     axios({
       method: 'get',
       url: 'http://localhost:8080/produto/lista',
       params: {
-        nome: formDataObj.nome,
-        descricao: formDataObj.descricao,
-        valor: formDataObj.valor,
+        nome: filtro.nome,
+        descricao: filtro.descricao,
+        valor: filtro.valor,
+        ordercampo: filtro.ordercampo,
+        ordertipo: filtro.ordertipo,
       },
     }).then((response) => {
       setProdutos(response.data);
@@ -45,11 +54,27 @@ function ProdutoLista(props) {
       setSubmitted(false);
       setProdutos([]);
     });
-  };
+  }
 
   const editarProduto = (produtoId) => {
     props.setProdutoId(produtoId);
     navigate("/produto/editar");
+  };
+
+  const excluirProduto = (produtoId) => {
+    api.post(
+      "/produto/"+produtoId+"/remover",
+      {
+        headers: {
+        'Content-Type': 'application/json'
+        }
+      }
+    ).then((response) => {
+      toast.success('Produto excluido com sucesso!');
+      buscar();
+    }).catch((error) => {
+      toast.error(error.response.data.message);
+    });
   };
 
   return (
@@ -113,11 +138,42 @@ function ProdutoLista(props) {
                 </Form.Group>
               </Col>
             </Row>
+            <Row>
+              <Col>
+                <Form.Group controlId="form.endereco">
+                  <InputGroup className='TextLeft'>
+                    <label>
+                      Ordenar por
+                      <Form.Select name="ordercampo">
+                        <option value=''></option>
+                        <option value="nome">Nome</option>
+                        <option value="descricao">Descrição</option>
+                        <option value="valor">Valor do Produto</option>
+                      </Form.Select><br />
+                    </label>
+                  </InputGroup><br />
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group controlId="form.telefone">
+                  <InputGroup className='TextLeft'>
+                    <label>
+                      Tipo Ordenação
+                      <Form.Select name="ordertipo">
+                        <option value=''></option>
+                        <option value="ASC">Crescente</option>
+                        <option value="DESC">Decrescente</option>
+                      </Form.Select><br />
+                    </label>
+                  </InputGroup><br />
+                </Form.Group>
+              </Col>
+            </Row>
           </Card.Body>
           <Card.Footer>
             <Row>
               <Col className='TextRight'>
-                <Button id="buscar" type="submit" disabled={submitted}>Filtrar</Button>
+                <Button variant="info" id="buscar" type="submit" disabled={submitted}>Filtrar</Button>
               </Col>
             </Row>
           </Card.Footer>
@@ -129,7 +185,7 @@ function ProdutoLista(props) {
         <Card.Body>
           <Row>
             <Col className='TextRight'>
-              <Button id="pedidos" onClick={() => navigate("/produto/novo")}>Novo Produto</Button>
+              <Button variant="secondary" id="pedidos" onClick={() => navigate("/produto/novo")}>Novo Produto</Button>
             </Col>
           </Row><br></br>
           {produtos.map(
@@ -154,7 +210,8 @@ function ProdutoLista(props) {
                   </Row>
                 </Card.Body>
                 <Card.Footer className="TextRight">
-                  <Button id="pedidos" onClick={() => { editarProduto(produto.id) }}>Editar Produto</Button>
+                  <Button id="produto-excluir" variant="danger"onClick={() => { excluirProduto(produto.id) }}>Excluir Produto</Button>{' '}
+                  <Button id="produto" onClick={() => { editarProduto(produto.id) }}>Editar Produto</Button>
                 </Card.Footer>
               </Card>
             )

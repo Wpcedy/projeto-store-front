@@ -40,15 +40,14 @@ function ClienteNovo(props) {
           }
         }
       ).then((response) => {
-        props.setClienteId(null);
+        toast.success('Cliente criado com sucesso!');
         setSubmitted(false);
-        navigate("/cliente/lista");
+        event.target.reset();
       }).catch((error) => {
         setSubmitted(false);
         toast.error(error.response.data.message);
       });
     }
-
   };
 
   return (
@@ -134,13 +133,12 @@ function ClienteNovo(props) {
           <Card.Footer>
             <Row>
               <Col className='TextRight'>
-                <Button id="buscar" type="submit" disabled={submitted}>Salvar</Button>
+                <Button variant="success" id="buscar" type="submit" disabled={submitted}>Salvar</Button>
               </Col>
             </Row>
           </Card.Footer>
         </Card>
       </Form>
-      <br></br>
       <Toaster />
     </div>
   );
